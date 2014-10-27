@@ -10,10 +10,15 @@
 // lecturer for a “Hanoi envelope”.
 
 println(HanoiDiscs.countMoves(4));
+println(HanoiDiscs.calcMoves(4));
 
 class HanoiDiscs{
 	static int countMoves(int n){
 		if (n == 0) return 0;
 		return countMoves(n-1) + 1 + countMoves(n-1); 
+	}
+		
+	static int calcMoves(int n){
+		return (n * n) - 1;
 	}
 }
