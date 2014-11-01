@@ -8,10 +8,10 @@
 // Create a method that calculates the number of moves necessary to move a set of n Hanoi disks from the initial
 // post to the last post. Hint: if you want to play monk yourself in order to better understand the problem, ask the
 // lecturer for a “Hanoi envelope”.
-
-println(HanoiDiscs.countMoves(4));
-println(HanoiDiscs.calcMoves(4));
-
+for (int i = 0; i < 10; i++){
+    println(HanoiDiscs.countMoves(i));
+    println(HanoiDiscs.calcMoves(i));
+}
 class HanoiDiscs{
 	static int countMoves(int n){
 		if (n == 0) return 0;
@@ -19,6 +19,10 @@ class HanoiDiscs{
 	}
 		
 	static int calcMoves(int n){
-		return (n * n) - 1;
+        int moves = 1;
+        for (int i = 0; i < n; i++){
+            moves *= 2;
+        }
+        return moves - 1;
 	}
 }
