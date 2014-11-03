@@ -1,0 +1,81 @@
+// 8 How big is your stack? (*)
+// Write a method that calculates the maximum size of the stack (measured in method calls) 
+// by forcing a StackOverflowError. Use different methods, which different number and types 
+// of local variables, and see how the number of maximum function calls changes.
+
+println("Choose a method:");
+println("A for Empty.");
+println("B for a boolean.");
+println("C for some stuff.");
+println("D for some strings and stuff.");
+println("E for an uninitialized String");
+println("F for a string with characters");
+println("G for an empty string");
+String input = System.console().readLine();
+if (input.toUpper().equals("A"){
+	StackOverflower.infiniteRecursionB();
+} else if (input.toUpper().equals("B"){
+	StackOverflower.infiniteRecursionB();
+} else if (input.toUpper().equals("C"){
+	StackOverflower.infiniteRecursionC();
+} else if (input.toUpper().equals("D"){
+	StackOverflower.infiniteRecursionD();
+} else if (input.toUpper().equals("E"){
+	StackOverflower.infiniteRecursionE();
+} else if (input.toUpper().equals("F"){
+	StackOverflower.infiniteRecursionF();
+} else if (input.toUpper().equals("G"){
+	StackOverflower.infiniteRecursionG();
+} 
+
+class StackOverflower {
+	int counter = 0;
+
+	public static void StackOverflower(){
+		infiniteRecursionA();
+	}
+	
+	public static void infiniteRecursionB(){
+		boolean solo;
+		infiniteRecursionC();
+	}
+	
+	public static void infiniteRecursionC(){
+		int a;
+		int b;
+		int c;
+		double d;
+		infiniteRecursionC();
+	}
+	
+	public static void infiniteRecursionD(){
+		long a;
+		long b;
+		long c;
+		double d;
+		double e;
+		double f;
+		double g;
+		String h = "There are strings in this method";
+		String i = "There are strings in this method";
+		String j = "There are strings in this method";
+		String k = "There are strings in this method";
+		String l = "There are strings in this method";
+		
+		infiniteRecursionD();
+	}
+	
+	public static void infiniteRecursionE(){
+		String a;
+		infiniteRecursionE();
+	}
+	public static void infiniteRecursionF(){
+		String a = "has some more characters than E does";
+		infiniteRecursionF();
+	}
+	
+	public static void infiniteRecursionG(){
+		String a = "";
+		infiniteRecursionG();
+	}
+}
