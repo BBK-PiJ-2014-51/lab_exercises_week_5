@@ -1,0 +1,209 @@
+// 
+// Create a method that calculates the solution to the problem of the eight Dames: “given a 
+// chess board, and knowing that the Dame can reach any tile horizontally, vertically, or 
+// diagonally, place 8 Dames on the board so that none of them can reach the others by 
+// doing only one move”. You can return the solution as an array of 8x8 booleans where 
+// eight tiles are true (those with the Dames on them) and the others are false.
+// For extra complexity, make your method return all the possibilities in which the problem 
+// can be solved (this may take a long time).
+
+Chessboard board = new Chessboard();
+board.clearBoard();
+//board.placeQueen('c',3);
+//board.printBoard(); 
+//for (int i = 0; i < 8; i++){
+	//for (int j = 0; j < 8; j++){
+		board.placeEightDames(0,0);
+	//}
+//}
+
+
+class Chessboard{
+	int boardSize = 4;
+	int dames = 0;
+	boolean[][] board = new boolean[boardSize][boardSize];
+	
+	
+	
+	public void clearBoard(){
+		for (int i = 0; i < boardSize; i++){
+			for (int j = 0; j < boardSize; j++){
+				board[i][j] = false;		
+			}		
+		}
+	}
+	
+	public void printBoard(){
+		for (int i = 0; i < boardSize; i++){
+			for (int j = 0; j < boardSize; j++){
+				String symbol = (board[i][j]) ? "Q" : "-";
+				print("\t" + symbol);
+			}
+			println();
+		}
+	}
+	
+	
+	public void placeEightDames(int col, int row){
+		// TO DO: Fix. This method doesnt work right at all. =(
+		
+		if (isOutOfBounds(col,row)){
+			return;
+		}
+		if (dames == boardSize){	
+			println("Dames: " + String.valueOf(dames));
+			printBoard();
+			return;
+		}
+		if (canPlaceDameHere(col,row)){
+			placeQueen(col,row);
+			placeEightDames(col + 1, row);
+			placeEightDames(col, row + 1);
+			if (dames < boardSize) displaceQueen(col,row);
+		}
+		placeEightDames(col + 1, row);
+		placeEightDames(col, row + 1);		
+	}
+	
+	public boolean canPlaceDameHere(int col, int row){
+		if (!checkNorth(col,row)) return false;
+		if (!checkSouth(col,row)) return false;
+		if (!checkEast(col,row)) return false;
+		if (!checkWest(col,row)) return false;
+		if (!checkNorthEast(col,row)) return false;
+		if (!checkSouthWest(col,row)) return false;
+		if (!checkSouthEast(col,row)) return false;
+		if (!checkNorthWest(col,row)) return false;
+		return true;
+	}
+	
+	private boolean checkNorth(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkNorth(col, row - 1);
+		}
+	}
+	
+	private boolean checkSouth(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkSouth(col, row + 1);
+		}
+	}
+	
+	private boolean checkEast(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkEast(col + 1, row);
+		}
+	}
+	
+	private boolean checkWest(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkWest(col - 1, row);
+		}
+	}
+	
+	private boolean checkNorthEast(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkNorthEast(col+1, row - 1);
+		}
+	}
+	
+	private boolean checkSouthEast(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkSouthEast(col + 1, row + 1);
+		}
+	}
+	
+	private boolean checkNorthWest(int col, int row){
+		if (isOutOfBounds(col, row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkNorthWest(col - 1, row - 1);
+		}
+	}
+	
+	private boolean checkSouthWest(int col, int row){
+		if (isOutOfBounds(col,row)){
+			return true;
+		} else if (board[row][col]){
+			return false;
+		} else {
+			return checkSouthWest(col - 1, row + 1);
+		}
+	}
+	
+	private boolean isOutOfBounds(int col, int row){
+		if ((col < 0 || col >= boardSize)  || (row < 0 || row >= boardSize)){
+			return true;
+		} else{
+			return false;
+		}
+	}
+	
+	public boolean displaceQueen(int col, int row){		
+		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
+			board[row][col] = false;
+			println("displacing last queen...");
+			dames--;
+			return true;
+		} else{
+			println("invalid move");
+		}
+		return false;		
+	}
+	
+	public boolean placeQueen(int col, int row){		
+		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
+			board[row][col] = true;
+			dames++;
+			println("Placing at: " + String.valueOf(col) + ", " + String.valueOf(row));
+			println("Dame count: " + String.valueOf(dames));
+			// try {Thread.sleep(200);}
+			// catch (Exception ex){
+				// println("Can't pause");
+			// }
+			return true;
+		} else{
+			println("invalid move");
+		}
+		return false;		
+	}
+	
+	
+	public boolean placeQueen(char columnLetter, int row){
+		int col = Character.toLowerCase(columnLetter) - 'a';
+		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
+			board[row][col] = true;
+			return true;
+		} else{
+			println("invalid move");
+		}
+		return false;		
+	}
+
+}
