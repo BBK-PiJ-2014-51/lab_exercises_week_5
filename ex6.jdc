@@ -8,202 +8,203 @@
 // can be solved (this may take a long time).
 
 Chessboard board = new Chessboard();
-board.clearBoard();
-//board.placeQueen('c',3);
-//board.printBoard(); 
-//for (int i = 0; i < 8; i++){
-	//for (int j = 0; j < 8; j++){
-		board.placeEightDames(0,0);
-	//}
-//}
+boolean[][][] allConfigs = board.getAllConfigs();
 
 
 class Chessboard{
-	int boardSize = 4;
-	int dames = 0;
-	boolean[][] board = new boolean[boardSize][boardSize];
+	public static final int CHESSBOARD_SIZE = 8;
+	private int matchCount = 0;
+	boolean[][][] answers; //= new boolean[1][CHESSBOARD_SIZE][CHESSBOARD_SIZE];
 	
+	public boolean[][][] getAllConfigs(){
+		boolean[][] initConfig = new boolean[CHESSBOARD_SIZE][CHESSBOARD_SIZE];
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			for (int j = 0; j < CHESSBOARD_SIZE; j++){
+				initConfig[i][j] = (i == j) ? true : false;
+			}
+		}
+		placeDames(CHESSBOARD_SIZE, initConfig);
+		return answers;
+	}
 	
-	
-	public void clearBoard(){
-		for (int i = 0; i < boardSize; i++){
-			for (int j = 0; j < boardSize; j++){
-				board[i][j] = false;		
-			}		
+	public void placeDames(int rowsLeft, boolean[][]currentRowConfig){
+		if (rowsLeft == 0){
+			if (checkAllDames(currentRowConfig)) {
+				matchCount++;
+				printBoard(currentRowConfig);
+				recordAnswer(currentRowConfig);
+			}
+		} else { //else try the remaining configs
+			for (int i = 0; i < rowsLeft; i++){
+				boolean[][] nextConfig = placeRow(i, rowsLeft, currentRowConfig);
+				placeDames(rowsLeft - 1, nextConfig);
+			}
 		}
 	}
 	
-	public void printBoard(){
-		for (int i = 0; i < boardSize; i++){
-			for (int j = 0; j < boardSize; j++){
+	private void recordAnswer(boolean[][] currentRowConfig){
+		boolean[][][] newAnswers = new boolean[matchCount][CHESSBOARD_SIZE][CHESSBOARD_SIZE];
+		if (matchCount > 1){
+			for (int match = 0; match < matchCount -1; match++){
+				for (int i = 0; i < CHESSBOARD_SIZE; i++){
+					for (int j = 0; j < CHESSBOARD_SIZE; j++){
+						newAnswers[match][i][j] = answers[match][i][j];
+					}
+				}
+			}
+		}	
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			for (int j = 0; j < CHESSBOARD_SIZE; j++){
+				newAnswers[matchCount -1][i][j] = currentRowConfig[i][j];		
+			}
+		}	
+		answers = newAnswers;
+	}
+	
+	boolean[][] placeRow(int rowToMoveIndex, int rowsLeft, boolean[][]currentRowConfig){
+		
+		// copy into new array
+		boolean[][] newConfig = new boolean[CHESSBOARD_SIZE][CHESSBOARD_SIZE];
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			for (int j = 0; j < CHESSBOARD_SIZE; j++){
+				newConfig[i][j] = currentRowConfig[i][j];
+			}
+		}
+		
+		//swap row
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			boolean tempValue = newConfig[CHESSBOARD_SIZE - rowsLeft][i];
+			newConfig[CHESSBOARD_SIZE - rowsLeft][i] = newConfig[rowToMoveIndex][i];
+			newConfig[rowToMoveIndex][i] = tempValue;
+		}
+		
+		return newConfig;
+	}
+	
+	private void printBoard(boolean[][] board){
+		println("Match found!!!");
+		println("That's match number: " + String.valueOf(matchCount));
+		println("Printing board....");
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			for (int j = 0; j < CHESSBOARD_SIZE; j++){
 				String symbol = (board[i][j]) ? "Q" : "-";
 				print("\t" + symbol);
 			}
 			println();
 		}
+		println("***************************************************");
 	}
 	
-	
-	public void placeEightDames(int col, int row){
-		// TO DO: Fix. This method doesnt work right at all. =(
-		
-		if (isOutOfBounds(col,row)){
-			return;
+	private boolean checkAllDames(boolean[][] config){
+		boolean allPass = true;
+		for (int i = 0; i < CHESSBOARD_SIZE; i++){
+			for (int j = 0; j < CHESSBOARD_SIZE; j++){
+				if (config[i][j]) {
+					if (! canPlaceDameHere(j,i, config)) allPass = false;
+				}		
+			}		
 		}
-		if (dames == boardSize){	
-			println("Dames: " + String.valueOf(dames));
-			printBoard();
-			return;
-		}
-		if (canPlaceDameHere(col,row)){
-			placeQueen(col,row);
-			placeEightDames(col + 1, row);
-			placeEightDames(col, row + 1);
-			if (dames < boardSize) displaceQueen(col,row);
-		}
-		placeEightDames(col + 1, row);
-		placeEightDames(col, row + 1);		
+		return allPass;
 	}
 	
-	public boolean canPlaceDameHere(int col, int row){
-		if (!checkNorth(col,row)) return false;
-		if (!checkSouth(col,row)) return false;
-		if (!checkEast(col,row)) return false;
-		if (!checkWest(col,row)) return false;
-		if (!checkNorthEast(col,row)) return false;
-		if (!checkSouthWest(col,row)) return false;
-		if (!checkSouthEast(col,row)) return false;
-		if (!checkNorthWest(col,row)) return false;
+	private boolean canPlaceDameHere(int col, int row, boolean[][] board){
+		if (!checkNorth(col,row-1, board)) return false;
+		if (!checkSouth(col,row + 1, board)) return false;
+		if (!checkEast(col + 1,row, board)) return false;
+		if (!checkWest(col - 1,row, board)) return false;
+		if (!checkNorthEast(col + 1 ,row -1, board)) return false;
+		if (!checkSouthWest(col -1,row + 1, board)) return false;
+		if (!checkSouthEast(col + 1,row + 1, board)) return false;
+		if (!checkNorthWest(col - 1 ,row - 1, board)) return false;
 		return true;
 	}
 	
-	private boolean checkNorth(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkNorth(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkNorth(col, row - 1);
+			return checkNorth(col, row - 1, board);
 		}
 	}
 	
-	private boolean checkSouth(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkSouth(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkSouth(col, row + 1);
+			return checkSouth(col, row + 1, board);
 		}
 	}
 	
-	private boolean checkEast(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkEast(int col, int row, boolean[][] board ){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkEast(col + 1, row);
+			return checkEast(col + 1, row, board);
 		}
 	}
 	
-	private boolean checkWest(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkWest(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkWest(col - 1, row);
+			return checkWest(col - 1, row, board);
 		}
 	}
 	
-	private boolean checkNorthEast(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkNorthEast(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkNorthEast(col+1, row - 1);
+			return checkNorthEast(col+1, row - 1, board);
 		}
 	}
 	
-	private boolean checkSouthEast(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkSouthEast(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkSouthEast(col + 1, row + 1);
+			return checkSouthEast(col + 1, row + 1, board);
 		}
 	}
 	
-	private boolean checkNorthWest(int col, int row){
-		if (isOutOfBounds(col, row)){
+	private boolean checkNorthWest(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col, row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkNorthWest(col - 1, row - 1);
+			return checkNorthWest(col - 1, row - 1, board);
 		}
 	}
 	
-	private boolean checkSouthWest(int col, int row){
-		if (isOutOfBounds(col,row)){
+	private boolean checkSouthWest(int col, int row, boolean[][] board){
+		if (isOutOfBounds(col,row, board)){
 			return true;
 		} else if (board[row][col]){
 			return false;
 		} else {
-			return checkSouthWest(col - 1, row + 1);
+			return checkSouthWest(col - 1, row + 1, board);
 		}
 	}
 	
-	private boolean isOutOfBounds(int col, int row){
-		if ((col < 0 || col >= boardSize)  || (row < 0 || row >= boardSize)){
+	private boolean isOutOfBounds(int col, int row, boolean[][] board){
+		if ((col < 0 || col >= CHESSBOARD_SIZE)  || (row < 0 || row >= CHESSBOARD_SIZE)){
 			return true;
 		} else{
 			return false;
 		}
 	}
 	
-	public boolean displaceQueen(int col, int row){		
-		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
-			board[row][col] = false;
-			println("displacing last queen...");
-			dames--;
-			return true;
-		} else{
-			println("invalid move");
-		}
-		return false;		
-	}
-	
-	public boolean placeQueen(int col, int row){		
-		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
-			board[row][col] = true;
-			dames++;
-			println("Placing at: " + String.valueOf(col) + ", " + String.valueOf(row));
-			println("Dame count: " + String.valueOf(dames));
-			// try {Thread.sleep(200);}
-			// catch (Exception ex){
-				// println("Can't pause");
-			// }
-			return true;
-		} else{
-			println("invalid move");
-		}
-		return false;		
-	}
-	
-	
-	public boolean placeQueen(char columnLetter, int row){
-		int col = Character.toLowerCase(columnLetter) - 'a';
-		if ((col >= 0 && col < boardSize)  && (row >=0 && row < boardSize)){
-			board[row][col] = true;
-			return true;
-		} else{
-			println("invalid move");
-		}
-		return false;		
-	}
-
 }
